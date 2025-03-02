@@ -31,6 +31,13 @@ def extract_data(record: ET.Element) -> list[OrderedDict]:
     data_rec["LibraryLayout"] = [i.tag for i in lib_descriptor.find("LIBRARY_LAYOUT")][
         0
     ]
+    data_rec["LibraryProtocol"] = return_text(
+        lib_descriptor.find("LIBRARY_CONSTRUCTION_PROTOCOL")
+    )
+
+    # sequencer
+    platform = record.find("EXPERIMENT/PLATFORM")
+    data_rec["Sequencer"] = [[return_text(gc) for gc in child] for child in platform][0]
 
     # study info
     data_rec["SRAStudy"] = return_text(record.find("STUDY/IDENTIFIERS/PRIMARY_ID"))
