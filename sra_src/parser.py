@@ -24,20 +24,29 @@ def extract_data(record: ET.Element) -> list[OrderedDict]:
     data_rec["Experiment"] = record.find("EXPERIMENT").attrib.get("accession")
 
     # library info
-    lib_descriptor = record.find("EXPERIMENT/DESIGN/LIBRARY_DESCRIPTOR")
-    data_rec["LibraryStrategy"] = return_text(lib_descriptor.find("LIBRARY_STRATEGY"))
-    data_rec["LibrarySelection"] = return_text(lib_descriptor.find("LIBRARY_SELECTION"))
-    data_rec["LibrarySource"] = return_text(lib_descriptor.find("LIBRARY_SOURCE"))
-    data_rec["LibraryLayout"] = [i.tag for i in lib_descriptor.find("LIBRARY_LAYOUT")][
-        0
-    ]
+    design = record.find("EXPERIMENT/DESIGN")
+    data_rec["DesignDescription"] = return_text(design.find("DESIGN_DESCRIPTION"))
+    data_rec["LibraryStrategy"] = return_text(
+        design.find("LIBRARY_DESCRIPTOR/LIBRARY_STRATEGY")
+    )
+    data_rec["LibrarySelection"] = return_text(
+        design.find("LIBRARY_DESCRIPTOR/LIBRARY_SELECTION")
+    )
+    data_rec["LibrarySource"] = return_text(
+        design.find("LIBRARY_DESCRIPTOR/LIBRARY_SOURCE")
+    )
+    data_rec["LibraryLayout"] = [
+        i.tag for i in design.find("LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT")
+    ][0]
     data_rec["LibraryProtocol"] = return_text(
-        lib_descriptor.find("LIBRARY_CONSTRUCTION_PROTOCOL")
+        design.find("LIBRARY_CONSTRUCTION_PROTOCOL")
     )
 
     # sequencer
     platform = record.find("EXPERIMENT/PLATFORM")
-    data_rec["Sequencer"] = [[return_text(gc) for gc in child] for child in platform][0]
+    data_rec["Sequencer"] = [
+        [return_text(gc) for gc in child][0] for child in platform
+    ][0]
 
     # study info
     data_rec["SRAStudy"] = return_text(record.find("STUDY/IDENTIFIERS/PRIMARY_ID"))
